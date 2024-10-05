@@ -27,6 +27,12 @@ To build and run USB Sniffer, you will need to install `gcc` or `MinGW32-make`.
    mingw32-make all
    ```
 
+5. **Run the application**:
+    ```bash
+    usb ?[-flag]
+    ```
+    All files will be copied in the folder with the usb flash name.
+
 ## Flags
 `-show`: Keeps the console visible. This is the default value if no flag is specified.
 
