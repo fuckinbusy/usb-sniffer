@@ -102,7 +102,7 @@ BOOL CopyDirFiles(WCHAR *pathIn, WCHAR *pathOut)
     {
         perror("\nFile open error");
         printf("%ld", GetLastError());
-        return 0;
+        return FALSE;
     }    
 
     while ((bytesRead = fread(&buffer, sizeof(unsigned char), sizeof(buffer), in)) > 0)
@@ -112,5 +112,5 @@ BOOL CopyDirFiles(WCHAR *pathIn, WCHAR *pathOut)
 
     fclose(in);
     fclose(out);
-    return 1;
+    return TRUE;
 }
