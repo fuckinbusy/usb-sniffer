@@ -1,10 +1,12 @@
 #include "scanner.h"
 
+#define FILE_BUFFER_SIZE 4096
+
 void stpush(Node **stack, LPCWSTR path, LPCWSTR outputPath)
 {
     Node *newNode = (Node*)malloc(sizeof(Node));
-    wcscpy(newNode->path, path);
-    wcscpy(newNode->outputPath, outputPath);
+    wcsncpy(newNode->path, path, MAX_PATH);
+    wcsncpy(newNode->outputPath, outputPath, MAX_PATH);
     newNode->next = *stack;
     *stack = newNode;
 }
@@ -14,8 +16,8 @@ void stpop(Node **stack, WCHAR *path, WCHAR *outputPath)
     if (*stack != NULL)
     {
         Node *node = *stack;
-        wcscpy(path, node->path);
-        wcscpy(outputPath, node->outputPath);
+        wcsncpy(path, node->path, MAX_PATH);
+        wcsncpy(outputPath, node->outputPath, MAX_PATH);
         *stack = node->next;
         free(node);
     }
@@ -54,31 +56,29 @@ void ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
 
         do
         {
-            if (wcscmp(findData.cFileName, L".") == 0 || wcscmp(findData.cFileName, L"..") == 0)
+            if (wcscmp(findData.cFileName, L".") != 0 && wcscmp(findData.cFileName, L"..") != 0)
             {
-                continue;
-            }
+                WCHAR pathIn[MAX_PATH], pathOut[MAX_PATH];
+                BuildPath(pathIn, currentPath, findData.cFileName);
+                BuildPath(pathOut, currentOutputPath, findData.cFileName);
 
-            WCHAR pathIn[MAX_PATH], pathOut[MAX_PATH];
-            BuildPath(pathIn, currentPath, findData.cFileName);
-            BuildPath(pathOut, currentOutputPath, findData.cFileName);
-
-            if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-                CreateDirectoryW(pathOut, NULL);
-                stpush(&stack, pathIn, pathOut);
-            }
-            else
-            {
-                if (CopyDirFiles(pathIn, pathOut))
+                if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
                 {
-                    printf("[%S] copy success\n", pathIn);
+                    CreateDirectoryW(pathOut, NULL);
+                    stpush(&stack, pathIn, pathOut);
                 }
                 else
                 {
-                    printf("[%S] copy failed\n", pathIn);
-                }
-            }  
+                    if (CopyDirFiles(pathIn, pathOut))
+                    {
+                        printf("[%S] copy success\n", pathIn);
+                    }
+                    else
+                    {
+                        printf("[%S] copy failed\n", pathIn);
+                    }
+                }  
+            }
         } while (FindNextFileW(hFind, &findData));
         FindClose(hFind);
     }
@@ -95,22 +95,15 @@ BOOL CopyDirFiles(WCHAR *pathIn, WCHAR *pathOut)
 {
     FILE *in = _wfopen(pathIn, L"rb");
     FILE *out = _wfopen(pathOut, L"wb");
-    unsigned char buffer[4096];
+    unsigned char buffer[FILE_BUFFER_SIZE];
     int bytesRead;
 
-    if (in == NULL)
+    if (in == NULL || out == NULL)
     {
-        perror("\nfile in ERROR");
+        perror("\nFile open error");
         printf("%ld", GetLastError());
         return 0;
     }    
-
-    if (out == NULL)
-    {
-        perror("\nfile out ERROR");
-        printf("%ld", GetLastError());
-        return 0;
-    }
 
     while ((bytesRead = fread(&buffer, sizeof(unsigned char), sizeof(buffer), in)) > 0)
     {

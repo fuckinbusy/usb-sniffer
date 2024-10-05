@@ -9,3 +9,4 @@ BOOL AppendDrive(DRIVES *drives, const char driveName);
 BOOL FindDrive(DRIVES *drives, const char driveName);
 void PrintVolumeInformation(VOLUME_INFORMATION_P pVolumeInformation);
 void ScanDrives(int intervalms);
+void BuildDriveRootPath(char *drive, WCHAR *driveRootPath);

@@ -20,15 +20,6 @@ typedef struct
 
 } VOLUME_INFORMATION, *VOLUME_INFORMATION_P;
 
-typedef struct 
-{
-    const WCHAR *path;
-    WCHAR name[MAX_PATH];
-    DWORD serialNumber;
-    WCHAR fileSystemName[VOLUME_NAME_SIZE];
-} DRIVE;
-extern DRIVE GLOBAL_DRIVE;
-
 typedef struct
 {
     int counter;

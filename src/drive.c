@@ -1,30 +1,38 @@
 #include "drive.h"
 
-DRIVE GLOBAL_DRIVE = {NULL};
+#define DRIVE_ROOT_PATH_SIZE 4
 
 // Appends drive to drives list
 BOOL AppendDrive(DRIVES *drives, const char driveName)
 {
     if (drives->counter == 16)
     {
-        return 0;
+        return FALSE;
     }
     drives->cache[drives->counter] = driveName;
     drives->counter++;
-    return 1;
+    return TRUE;
 }
 
 // Returns TRUE if drive was found and FALSE if not
 BOOL FindDrive(DRIVES *drives, const char driveName)
 {
-    for (size_t i = 0; i < sizeof(drives->counter); i++)
+    for (size_t i = 0; i < drives->counter; i++)
     {
         if (drives->cache[i] == driveName)
         {
-            return 1;
+            return TRUE;
         }
     }
-    return 0;
+    return FALSE;
+}
+
+void BuildDriveRootPath(char *drive, WCHAR *driveRootPath)
+{
+    driveRootPath[0] = (WCHAR)(*drive);
+    driveRootPath[1] = L':';
+    driveRootPath[2] = L'\\';
+    driveRootPath[3] = L'\0';
 }
 
 void PrintVolumeInformation(VOLUME_INFORMATION_P pVolumeInformation)
@@ -33,9 +41,7 @@ void PrintVolumeInformation(VOLUME_INFORMATION_P pVolumeInformation)
     printf("Serial: %d\n", pVolumeInformation->lpVolumeSerialNumber);
     printf("Max filename len: %d\n", pVolumeInformation->lpMaximumComponentLength);
     printf("File system: %S\n", pVolumeInformation->lpFileSystemNameBuffer);
-
-    int zeros = sizeof(pVolumeInformation->lpFileSystemFlags) * 2;
-    printf("Flags: %0*lx\n", zeros, pVolumeInformation->lpFileSystemFlags);
+    printf("Flags: %0*lx\n", sizeof(pVolumeInformation->lpFileSystemFlags) * 2, pVolumeInformation->lpFileSystemFlags);
 }
 
 // Starts drives scanning
@@ -55,8 +61,9 @@ void ScanDrives(int intervalms)
             for (int i = 0; i < 25; i++)
             {
                 char drive = 'A' + i;
-                const WCHAR driveRootPath[] = {(WCHAR)(drive), L':', L'\\', L'\0'};
-                GLOBAL_DRIVE.path = driveRootPath;
+                WCHAR driveRootPath[DRIVE_ROOT_PATH_SIZE];
+                BuildDriveRootPath(&drive, driveRootPath);
+
                 if (drives & (1 << i) && GetDriveTypeW(driveRootPath) == DRIVE_REMOVABLE)
                 {
                     if (!AppendDrive(&drivesList, drive))
