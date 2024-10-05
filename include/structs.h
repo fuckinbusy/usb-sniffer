@@ -5,6 +5,7 @@
 #define VOLUME_NAME_SIZE MAX_PATH + 1
 #define FILE_BUFFER_SIZE 1048576
 #define DRIVE_ROOT_PATH_SIZE 4
+#define RUNTIME_SEC 30
 
 typedef struct Node
 {

@@ -50,7 +50,7 @@ void ScanDrives(int intervalms)
     VOLUME_INFORMATION volumeInfo = {0};
     int counter = 0;
 
-    while (counter != 30)
+    while (counter <= RUNTIME_SEC)
     {
         DWORD drives = GetLogicalDrives();
 
