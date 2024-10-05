@@ -10,7 +10,7 @@ all: usb clean
 
 usb: usb.o drive.o scanner.o
 	@echo Building binary file
-	@$(CC) $(CFLAGS) usb.o drive.o scanner.o -o usb
+	@$(CC) $(CFLAGS) usb.o drive.o scanner.o -o $(BUILD_DIR)\usb
 
 usb.o: src\usb.c
 	@echo Compiling usb.c file
