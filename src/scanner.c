@@ -31,7 +31,7 @@ void BuildPath(WCHAR *destination, const WCHAR *directory, const WCHAR *filename
     }
 }
 
-void ScanDirFiles(PCWSTR path, LPCWSTR outputPath)
+void ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
 {
     WIN32_FIND_DATAW findData = {0};    
     Node *stack = NULL;
