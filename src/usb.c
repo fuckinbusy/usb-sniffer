@@ -22,8 +22,6 @@ Disclaimer: This software should be used in accordance with applicable laws and 
 
 #include "drive.h"
 
-#define SLEEP_TIMEOUT_MS 1000
-
 int main(int argc, char *argv[])
 {
     const char *FLAG_CMDHIDE = "-hide";

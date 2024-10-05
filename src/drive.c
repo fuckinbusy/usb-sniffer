@@ -1,7 +1,5 @@
 #include "drive.h"
 
-#define DRIVE_ROOT_PATH_SIZE 4
-
 // Appends drive to drives list
 BOOL AppendDrive(DRIVES *drives, const char driveName)
 {

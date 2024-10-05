@@ -1,7 +1,5 @@
 #include "scanner.h"
 
-#define FILE_BUFFER_SIZE 4096
-
 void stpush(Node **stack, LPCWSTR path, LPCWSTR outputPath)
 {
     Node *newNode = (Node*)malloc(sizeof(Node));
