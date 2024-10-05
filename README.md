@@ -1,33 +1,34 @@
 # USB Sniffer
-Приложение для мониторинга подключаемых USB-устройств и автоматического копирования файлов с флешек. USB Sniffer создан исключительно для учебных и исследовательских целей, и не предназначен для нанесения вреда или несанкционированного использования. Пользователь несет полную ответственность за законное применение программы в соответствии с местными законами и правилами.
 
-> **Важно:** Данное приложение разработано исключительно в образовательных целях. Автор не несет ответственности за любые неправомерные действия, которые могут быть совершены с использованием этого программного обеспечения.
+USB Sniffer is an application for monitoring connected USB devices and automatically copying files from USB flash drives. USB Sniffer is created exclusively for educational and research purposes and is not intended for harm or unauthorized use. The user bears full responsibility for the lawful application of the program in accordance with local laws and regulations.
 
-## Установка
+> **Important:** This application is developed solely for educational purposes. The author is not responsible for any unlawful actions that may be committed using this software.
 
-Чтобы собрать и запустить USB Sniffer, вам потребуется установить `gcc` или `MinGW32-make`. 
+## Installation
 
-## Шаги по сборке:
+To build and run USB Sniffer, you will need to install `gcc` or `MinGW32-make`. 
 
-1. **Установите MinGW**: Если у вас ещё нет установленного MinGW, вы можете скачать его с [официального сайта](https://osdn.net/projects/mingw/releases/) и следовать инструкциям по установке.
+## Steps to Build:
 
-2. **Добавьте MinGW в PATH**: Убедитесь, что путь к папке с `gcc` и `MinGW32-make` добавлен в переменную среды `PATH`, чтобы вы могли запускать их из командной строки.
+1. **Install MinGW**: If you do not have MinGW installed, you can download it from the [official website](https://osdn.net/projects/mingw/releases/) and follow the installation instructions.
 
-3. **Откройте командную строку**: Нажмите `Win + R`, введите `cmd` и нажмите `Enter`.
+2. **Add MinGW to PATH**: Ensure that the path to the folder containing `gcc` and `MinGW32-make` is added to the `PATH` environment variable so that you can run them from the command line.
 
-4. **Перейдите в директорию с исходным кодом**: Используйте команду `cd`, чтобы перейти в папку с проектом USB Sniffer:
+3. **Open Command Prompt**: Press `Win + R`, type `cmd`, and press `Enter`.
+
+4. **Navigate to the Source Code Directory**: Use the `cd` command to go to the folder containing the USB Sniffer project:
    ```bash
    cd yourpath/USBsniffer
    gcc -I include -o usb src/usb.c src/drive.c src/scanner.c
    ```
-   Вы также можете использовать Makefile для сборки:
+   You can also use the Makefile to build the project:
    ```bash
    cd yourpath/USBsniffer
    mingw32-make all
    ```
 
-## Флаги
-`-show`: Оставляет консоль видимой. Это значение по умолчанию, если флаг не указан.
+## Flags
+`-show`: Keeps the console visible. This is the default value if no flag is specified.
 
-`-hide`: Скрывает консоль во время работы программы. Используйте этот флаг, если хотите, чтобы программа работала в фоновом режиме.
+`-hide`: Hides the console during the program's execution. Use this flag if you want the program to run in the background.
 
