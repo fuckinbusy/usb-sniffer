@@ -3,7 +3,7 @@
 
 #define SLEEP_TIMEOUT_MS 1000
 #define VOLUME_NAME_SIZE MAX_PATH + 1
-#define FILE_BUFFER_SIZE 4096
+#define FILE_BUFFER_SIZE 1048576
 #define DRIVE_ROOT_PATH_SIZE 4
 
 typedef struct Node
