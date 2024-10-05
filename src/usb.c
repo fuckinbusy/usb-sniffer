@@ -13,7 +13,7 @@ License: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
         This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
         as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-Requirements: Python 3.x, pyusb, watchdog
+Requirements: Win7 or above (actually not sure, but it should work)
 
 Disclaimer: This software should be used in accordance with applicable laws and regulations. The author is not responsible for any
             misuse or illegal activities involving this program.
