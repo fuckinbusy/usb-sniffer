@@ -17,12 +17,12 @@
 
 4. **Перейдите в директорию с исходным кодом**: Используйте команду `cd`, чтобы перейти в папку с проектом USB Sniffer:
    ```bash
-   cd yourpath\\USBsniffer
-   gcc -I include -o usb src\\usb.c src\\drive.c src\\scanner.c
+   cd yourpath/USBsniffer
+   gcc -I include -o usb src/usb.c src/drive.c src/scanner.c
    ```
    Вы также можете использовать Makefile для сборки:
    ```bash
-   cd yourpath\\USBsniffer
+   cd yourpath/USBsniffer
    mingw32-make all
    ```
 
