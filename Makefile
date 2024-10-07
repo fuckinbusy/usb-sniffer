@@ -5,23 +5,22 @@ INCLUDES_DIR = include
 BUILD_DIR = build
 SRC_DIR = src
 
-all: usb clean
+all: start usb clean
 	@echo Build completed!
 
-usb: usb.o drive.o scanner.o
+start:
 	@echo Building binary file
+
+usb: start usb.o drive.o scanner.o
 	@$(CC) $(CFLAGS) usb.o drive.o scanner.o -o $(BUILD_DIR)\usb
 
 usb.o: src\usb.c
-	@echo Compiling usb.c file
 	@$(CC) $(CFLAGS) -c $(SRC_DIR)\usb.c
 
 drive.o: src\drive.c
-	@echo Compiling drive.c file
 	@$(CC) $(CFLAGS) -c $(SRC_DIR)\drive.c
 
 scanner.o: src\scanner.c
-	@echo Compiling scanner.c file
 	@$(CC) $(CFLAGS) -c $(SRC_DIR)\scanner.c
 
 clean:
