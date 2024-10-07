@@ -16,7 +16,7 @@ unsigned char *FileBufferInit(int size)
     else
     {
         printf("WARNING: Buffer already initialized.\n");
-        return NULL;
+        return FILE_BUFFER;
     }
 }
 
