@@ -12,12 +12,10 @@ unsigned char *FileBufferInit(int size)
             printf("Buffer memory allocated %d bytes.\n", FILE_BUFFER_SIZE);
             return p;
         }
+        return NULL;
     }
-    else
-    {
-        printf("WARNING: Buffer already initialized.\n");
-        return FILE_BUFFER;
-    }
+    printf("WARNING: Buffer already initialized.\n");
+    return FILE_BUFFER;
 }
 
 BOOL FileBufferClear(unsigned char *buffer)
