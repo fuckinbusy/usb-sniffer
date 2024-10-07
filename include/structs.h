@@ -1,11 +1,11 @@
 #pragma once
 #include <Windows.h>
 
-#define SLEEP_TIMEOUT_MS 1000
-#define VOLUME_NAME_SIZE MAX_PATH + 1
-#define FILE_BUFFER_SIZE 1048576
-#define DRIVE_ROOT_PATH_SIZE 4
-#define RUNTIME_SEC 30
+#define SLEEP_TIMEOUT_MS 1000         // drives searching pause in millisenonds
+#define VOLUME_NAME_SIZE MAX_PATH + 1 // DONT CHANGE THIS
+#define DRIVE_ROOT_PATH_SIZE 4        // DONT CHANGE THIS
+#define FILE_BUFFER_SIZE 262144       // max file buffer size for copying
+#define RUNTIME_SEC 30                // how long program works in seconds
 
 typedef struct Node
 {

@@ -1,5 +1,37 @@
 #include "scanner.h"
 
+unsigned char *FILE_BUFFER = NULL;
+
+unsigned char *FileBufferInit(int size)
+{
+    if (FILE_BUFFER == NULL)
+    {
+        unsigned char *p = (unsigned char*)malloc(FILE_BUFFER_SIZE * sizeof(unsigned char));
+        if (p != NULL)
+        {
+            printf("Buffer memory allocated %d bytes.\n", FILE_BUFFER_SIZE);
+            return p;
+        }
+    }
+    else
+    {
+        printf("WARNING: Buffer already initialized.\n");
+        return NULL;
+    }
+}
+
+BOOL FileBufferClear(unsigned char *buffer)
+{
+    if (buffer == NULL)
+    {
+        printf("WARNING: Cannot free buffer memory.\n");
+        return FALSE;
+    }
+    free(buffer);
+    printf("Buffer memory cleared.\n");
+    return TRUE;
+}
+
 void stpush(Node **stack, LPCWSTR path, LPCWSTR outputPath)
 {
     Node *newNode = (Node*)malloc(sizeof(Node));
@@ -33,6 +65,12 @@ void BuildPath(WCHAR *destination, const WCHAR *directory, const WCHAR *filename
 
 void ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
 {
+    unsigned char *buffer = FileBufferInit(FILE_BUFFER_SIZE);
+    if (buffer == NULL)
+    {
+        printf("ERROR: Memory allocation error.");
+        return;
+    }
     WIN32_FIND_DATAW findData = {0};    
     Node *stack = NULL;
 
@@ -67,7 +105,7 @@ void ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
                 }
                 else
                 {
-                    if (CopyDirFiles(pathIn, pathOut))
+                    if (CopyDirFiles(pathIn, pathOut, buffer))
                     {
                         printf("[%S] copy success\n", pathIn);
                     }
@@ -80,6 +118,7 @@ void ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
         } while (FindNextFileW(hFind, &findData));
         FindClose(hFind);
     }
+    FileBufferClear(buffer);
     printf("Done!\n");
 }
 
@@ -89,11 +128,10 @@ void ScanDriveFiles(LPCWSTR path, WCHAR *driveName)
     ScanDirFiles(path, driveName);
 }
 
-BOOL CopyDirFiles(WCHAR *pathIn, WCHAR *pathOut)
+BOOL CopyDirFiles(WCHAR *pathIn, WCHAR *pathOut, unsigned char *buffer)
 {
     FILE *in = _wfopen(pathIn, L"rb");
     FILE *out = _wfopen(pathOut, L"wb");
-    unsigned char buffer[FILE_BUFFER_SIZE];
     int bytesRead;
 
     if (in == NULL || out == NULL)
@@ -103,9 +141,9 @@ BOOL CopyDirFiles(WCHAR *pathIn, WCHAR *pathOut)
         return FALSE;
     }    
 
-    while ((bytesRead = fread(&buffer, sizeof(unsigned char), sizeof(buffer), in)) > 0)
+    while ((bytesRead = fread(buffer, sizeof(unsigned char), FILE_BUFFER_SIZE, in)) > 0)
     {
-        fwrite(&buffer, sizeof(unsigned char), bytesRead, out);
+        fwrite(buffer, sizeof(unsigned char), bytesRead, out);
     }
 
     fclose(in);
