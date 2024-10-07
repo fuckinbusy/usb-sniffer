@@ -1,34 +1,34 @@
 #include "scanner.h"
 
-unsigned char *FILE_BUFFER = NULL;
+// unsigned char *FILE_BUFFER = NULL;
 
-unsigned char *FileBufferInit(int size)
-{
-    if (FILE_BUFFER == NULL)
-    {
-        unsigned char *p = (unsigned char*)malloc(FILE_BUFFER_SIZE * sizeof(unsigned char));
-        if (p != NULL)
-        {
-            printf("Buffer memory allocated %d bytes.\n", FILE_BUFFER_SIZE);
-            return p;
-        }
-        return NULL;
-    }
-    printf("WARNING: Buffer already initialized.\n");
-    return FILE_BUFFER;
-}
+// unsigned char *FileBufferInit(int size)
+// {
+//     if (FILE_BUFFER == NULL)
+//     {
+//         unsigned char *p = (unsigned char*)malloc(FILE_BUFFER_SIZE * sizeof(unsigned char));
+//         if (p != NULL)
+//         {
+//             printf("Buffer memory allocated %d bytes.\n", FILE_BUFFER_SIZE);
+//             return p;
+//         }
+//         return NULL;
+//     }
+//     printf("WARNING: Buffer already initialized.\n");
+//     return FILE_BUFFER;
+// }
 
-BOOL FileBufferClear(unsigned char *buffer)
-{
-    if (buffer == NULL)
-    {
-        printf("WARNING: Cannot free buffer memory.\n");
-        return FALSE;
-    }
-    free(buffer);
-    printf("Buffer memory cleared.\n");
-    return TRUE;
-}
+// BOOL FileBufferClear(unsigned char *buffer)
+// {
+//     if (buffer == NULL)
+//     {
+//         printf("WARNING: Cannot free buffer memory.\n");
+//         return FALSE;
+//     }
+//     free(buffer);
+//     printf("Buffer memory cleared.\n");
+//     return TRUE;
+// }
 
 void stpush(Node **stack, LPCWSTR path, LPCWSTR outputPath)
 {
@@ -63,16 +63,14 @@ void BuildPath(WCHAR *destination, const WCHAR *directory, const WCHAR *filename
 
 void ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
 {
-    unsigned char *buffer = FileBufferInit(FILE_BUFFER_SIZE);
-    if (buffer == NULL)
-    {
-        printf("ERROR: Memory allocation error.");
-        return;
-    }
+    unsigned char buffer[FILE_BUFFER_SIZE];
+    int timerStart, timerEnd, timerResult;
+
     WIN32_FIND_DATAW findData = {0};    
     Node *stack = NULL;
 
     stpush(&stack, path, outputPath);
+    timerStart = time(NULL);
 
     while (stack != NULL)
     {
@@ -116,8 +114,9 @@ void ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
         } while (FindNextFileW(hFind, &findData));
         FindClose(hFind);
     }
-    FileBufferClear(buffer);
-    printf("Done!\n");
+    timerEnd = time(NULL);
+    timerResult = timerEnd - timerStart;
+    printf("Done! %d sec\n", timerResult);
 }
 
 void ScanDriveFiles(LPCWSTR path, WCHAR *driveName)
