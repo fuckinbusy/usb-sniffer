@@ -8,4 +8,3 @@ USB Sniffer is an application for monitoring connected USB devices and automatic
 `-show`: Keeps the console visible. This is the default value if no flag is specified.
 
 `-hide`: Hides the console during the program's execution. Use this flag if you want the program to run in the background.
-

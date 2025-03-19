@@ -1,23 +1,98 @@
 #include "drive.h"
 
-// Appends drive to drives list
-BOOL AppendDrive(DRIVES *drives, const char driveName)
+void FreeDrivesArray(pDrivesArray drives)
 {
-    if (drives->counter == 16)
+    if (drives == NULL) return;
+    for (size_t i = 0; i < drives->len; ++i)
     {
+        if (drives->drives[i] != NULL) { free(drives->drives[i]); }
+    }
+}
+
+BOOL UpdateDrive(pDrivesArray drives, DWORD serialNum, pVolumeInfo volumeInfo)
+{
+    if (drives == NULL || serialNum == 0 || volumeInfo == NULL) return FALSE;
+    
+    pDriveInfo drive = NULL;
+    for (size_t i = 0; i < drives->len; ++i)
+    {
+        if (drives->drives[i]->serial == serialNum)
+            drive = drives->drives[i];
+            break;
+    }
+
+    if (drive == NULL) return FALSE;
+
+    memset(drive, 0, sizeof(DriveInfo));
+    wcscpy_s(drive->name, MAX_PATH, volumeInfo->name);
+    wcscpy_s(drive->fileSysName, MAX_PATH + 1, volumeInfo->fileSysName);
+    drive->serial = volumeInfo->serialNum;
+    drive->isConnected = TRUE;
+    drive->letter = volumeInfo->letter;
+    return TRUE;
+}
+
+// Appends drive to drives list
+BOOL AppendDrive(pDrivesArray drives, pVolumeInfo volumeInfo)
+{
+    if (drives == NULL || volumeInfo == NULL) return FALSE;
+
+    if (FindDrive(drives, volumeInfo->serialNum))
+    {
+        if (UpdateDrive(drives, volumeInfo->serialNum, volumeInfo))
+        {
+            return TRUE;
+        }
         return FALSE;
     }
-    drives->cache[drives->counter] = driveName;
-    drives->counter++;
+
+    if (drives->len >= MAX_DRIVES) {
+        fprintf_s(stderr, "Drives array is full.\n");
+        return FALSE;
+    }
+
+    pDriveInfo drive = (pDriveInfo)malloc(sizeof(DriveInfo));
+    if (drive == NULL)
+    {
+        fprintf_s(stderr, "Memory allocation failed.\n");
+        return FALSE;
+    }
+
+    wcscpy_s(drive->name, MAX_PATH, volumeInfo->name);
+    wcscpy_s(drive->fileSysName, MAX_PATH + 1, volumeInfo->fileSysName);
+    drive->serial = volumeInfo->serialNum;
+    drive->isConnected = TRUE;
+    drive->letter = volumeInfo->letter;
+
+    drives->drives[drives->len] = drive;
+    drives->len++;
     return TRUE;
 }
 
 // Returns TRUE if drive was found and FALSE if not
-BOOL FindDrive(DRIVES *drives, const char driveName)
+BOOL FindDrive(pDrivesArray drives, DWORD serialNum)
 {
-    for (size_t i = 0; i < drives->counter; i++)
+    if (drives == NULL || serialNum == 0) return FALSE;
+
+    for (char i = 0; i < drives->len; i++)
     {
-        if (drives->cache[i] == driveName)
+        pDriveInfo drive = drives->drives[i];
+        if (drive != NULL && drive->serial == serialNum)
+        {
+            printf_s("%lu | %lu\n", drive->serial, serialNum);
+            return TRUE;
+        }
+    }
+    
+    return FALSE;
+}
+
+BOOL isDriverConnected(pDrivesArray drives, DWORD serialNum)
+{
+    for (char i = 0; i < MAX_DRIVES; ++i)
+    {
+        pDriveInfo drive = drives->drives[i];
+        if (drive->serial == serialNum && drive->isConnected)
         {
             return TRUE;
         }
@@ -25,38 +100,55 @@ BOOL FindDrive(DRIVES *drives, const char driveName)
     return FALSE;
 }
 
-void BuildDriveRootPath(char *drive, WCHAR *driveRootPath)
+void BuildDriveRootPath(const char *drive, WCHAR *driveRootPath)
 {
-    driveRootPath[0] = (WCHAR)(*drive);
+    driveRootPath[0] = (WCHAR)*drive;
     driveRootPath[1] = L':';
     driveRootPath[2] = L'\\';
     driveRootPath[3] = L'\0';
 }
 
-void PrintVolumeInformation(VOLUME_INFORMATION_P pVolumeInformation)
+void PrintVolumeInformation(pVolumeInfo pVolumeInformation)
 {
-    printf("Name: %S\n", pVolumeInformation->lpVolumeNameBuffer);
-    printf("Serial: %d\n", pVolumeInformation->lpVolumeSerialNumber);
-    printf("Max filename len: %d\n", pVolumeInformation->lpMaximumComponentLength);
-    printf("File system: %S\n", pVolumeInformation->lpFileSystemNameBuffer);
-    printf("Flags: %0*lx\n", sizeof(pVolumeInformation->lpFileSystemFlags) * 2, pVolumeInformation->lpFileSystemFlags);
+    printf("Name: %S\n", pVolumeInformation->name);
+    printf("Serial: %d\n", pVolumeInformation->serialNum);
+    printf("Max filename len: %d\n", pVolumeInformation->maxComponentLen);
+    printf("File system: %S\n", pVolumeInformation->fileSysName);
+    printf("Flags: %0*lx\n", sizeof(pVolumeInformation->fileSysFlags) * 2, pVolumeInformation->fileSysFlags);
+}
+
+DWORD GetDriveSerial(const WCHAR *driveRootPath)
+{
+    DWORD serial = 0;
+    GetVolumeInformationW(
+        driveRootPath,
+        NULL,
+        VOLUME_NAME_SIZE,
+        &serial,
+        NULL,
+        NULL,
+        NULL,
+        VOLUME_NAME_SIZE
+    );
+    return serial;
 }
 
 // Starts drives scanning
 void ScanDrives(int intervalms)
 {
-    DWORD prevDrives = 0;
-    DRIVES drivesList = {0};
-    VOLUME_INFORMATION volumeInfo = {0};
-    int counter = 0;
+    DWORD drives = 0;
+    size_t writtenBytesTotal = 0;
+    int runtime = intervalms;
+    
+    DrivesArray drivesList = {0};
 
-    while (counter <= RUNTIME_SEC)
+    while (runtime)
     {
-        DWORD drives = GetLogicalDrives();
-
-        if (drives != prevDrives)
+        DWORD tmp = GetLogicalDrives();
+        if (drives != tmp)
         {
-            for (int i = 0; i < 25; i++)
+            drives = tmp;
+            for (char i = 0; i != MAX_DRIVES; i++)
             {
                 char drive = 'A' + i;
                 WCHAR driveRootPath[DRIVE_ROOT_PATH_SIZE];
@@ -64,36 +156,59 @@ void ScanDrives(int intervalms)
 
                 if (drives & (1 << i) && GetDriveTypeW(driveRootPath) == DRIVE_REMOVABLE)
                 {
-                    if (!AppendDrive(&drivesList, drive))
-                    {
-                        printf("Maximum drives count reached.\n");
-                        return;
-                    }
-                    printf("FlashUSB %c: connected\n", drive);
-                    // Getting volume information
-                    GetVolumeInformationW(
+                    printf("\nDrive %c: connected\n", drive);
+
+                    VolumeInfo volumeInfo = {0};
+                    if (!GetVolumeInformationW(
                         driveRootPath,
-                        volumeInfo.lpVolumeNameBuffer,
-                        VOLUME_NAME_SIZE,
-                        &volumeInfo.lpVolumeSerialNumber,
-                        &volumeInfo.lpMaximumComponentLength,
-                        &volumeInfo.lpFileSystemFlags,
-                        volumeInfo.lpFileSystemNameBuffer,
-                        VOLUME_NAME_SIZE);
+                        volumeInfo.name,
+                        MAX_PATH,
+                        &volumeInfo.serialNum,
+                        &volumeInfo.maxComponentLen,
+                        &volumeInfo.fileSysFlags,
+                        volumeInfo.fileSysName,
+                        VOLUME_NAME_SIZE)) {
+                        fprintf(stderr, "Cannot get volume info.\n"); 
+                        continue; 
+                    }
+                    volumeInfo.letter = drive;
+
                     PrintVolumeInformation(&volumeInfo);
-                    ScanDriveFiles((LPCWSTR)(&driveRootPath), volumeInfo.lpVolumeNameBuffer);
+                    size_t writtenBytes = ScanDriveFiles((LPCWSTR)(&driveRootPath), volumeInfo.name);
+                    writtenBytesTotal += writtenBytes;
+                    
+                    if (!AppendDrive(&drivesList, &volumeInfo))
+                    {
+                        continue;
+                    }
                 }
                 else
                 {
-                    if (FindDrive(&drivesList, drive))
+                    DWORD drSrl = GetDriveSerial(driveRootPath);
+                    for (char j = 0; j < drivesList.len; ++j)
                     {
-                        printf("FlashUSB %c: disconnected\n", drive);
+                        pDriveInfo dr = drivesList.drives[j];
+                        if (dr->letter == drive && drSrl == 0)
+                        {
+                            printf("Drive %c: disconnected\n\n", drive);
+                        }
                     }
                 }
             }
+            // if (writtenBytesTotal > 0)
+            // {
+            //     printf("Bytes written total: %d | 0x%04X\n", writtenBytesTotal, writtenBytesTotal);
+            //     printf("First drive address: %p\n", drivesList.drives[0]);
+            //     printf("Name in drives list: %S | %S | %lu\n", 
+            //         drivesList.drives[0]->fileSysName, 
+            //         drivesList.drives[0]->name,
+            //         drivesList.drives[0]->serial
+            //     );
+            //     writtenBytesTotal = 0;
+            // }
         }
-        prevDrives = drives;
-        counter++;
+        runtime--;
         Sleep(intervalms);
     }
+    FreeDrivesArray(&drivesList);
 }

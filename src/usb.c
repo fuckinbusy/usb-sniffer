@@ -31,11 +31,11 @@ int main(int argc, char *argv[])
     if (argc > 1)
     {
 
-        if (strcmp(argv[1], FLAG_CMDHIDE) == 0)
+        if (stricmp(argv[1], FLAG_CMDHIDE) == 0)
         {
             ShowWindow(console, SW_HIDE);
         }
-        else if (strcmp(argv[1], FLAG_CMDSHOW) == 0)
+        else if (stricmp(argv[1], FLAG_CMDSHOW) == 0)
         {
             ShowWindow(console, SW_SHOW);
         }
