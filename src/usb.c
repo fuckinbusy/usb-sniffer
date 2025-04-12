@@ -22,12 +22,18 @@ Disclaimer: This software should be used in accordance with applicable laws and 
 
 #include "drive.h"
 
+#define FLAG_CMDHIDE "-hide"
+#define FLAG_CMDSHOW "-show"
+
 int main(int argc, char *argv[])
 {
-    const char *FLAG_CMDHIDE = "-hide";
-    const char *FLAG_CMDSHOW = "-show";
-
     HWND console = GetConsoleWindow();
+
+    if (!console)
+    {
+        printf_s("WARNING: Unable to get console window.\n");
+    }
+
     if (argc > 1)
     {
 
@@ -41,12 +47,11 @@ int main(int argc, char *argv[])
         }
         else
         {
-            printf("%s flag does not exist", argv[1]);
+            printf("ERROR: %s flag does not exist.\n", argv[1]);
             return 1;
         }
     }
 
-    system("cls");
     printf("----------------------------------------\n");
     printf("|                                      |\n");
     printf("|             USB Sniffer              |\n");

@@ -79,7 +79,6 @@ BOOL FindDrive(pDrivesArray drives, DWORD serialNum)
         pDriveInfo drive = drives->drives[i];
         if (drive != NULL && drive->serial == serialNum)
         {
-            printf_s("%lu | %lu\n", drive->serial, serialNum);
             return TRUE;
         }
     }
@@ -167,20 +166,25 @@ void ScanDrives(int intervalms)
                         &volumeInfo.maxComponentLen,
                         &volumeInfo.fileSysFlags,
                         volumeInfo.fileSysName,
-                        VOLUME_NAME_SIZE)) {
-                        fprintf(stderr, "Cannot get volume info.\n"); 
+                        VOLUME_NAME_SIZE))
+                    {
+                        fprintf(stderr, "ERROR: Cannot get volume info.\n"); 
                         continue; 
                     }
+
+                    if (FindDrive(&drivesList, volumeInfo.serialNum))
+                    {
+                        printf_s("Drive already 'sniffed'.\n");
+                        continue;
+                    }
+
                     volumeInfo.letter = drive;
 
                     PrintVolumeInformation(&volumeInfo);
                     size_t writtenBytes = ScanDriveFiles((LPCWSTR)(&driveRootPath), volumeInfo.name);
                     writtenBytesTotal += writtenBytes;
                     
-                    if (!AppendDrive(&drivesList, &volumeInfo))
-                    {
-                        continue;
-                    }
+                    AppendDrive(&drivesList, &volumeInfo);
                 }
                 else
                 {
@@ -195,17 +199,6 @@ void ScanDrives(int intervalms)
                     }
                 }
             }
-            // if (writtenBytesTotal > 0)
-            // {
-            //     printf("Bytes written total: %d | 0x%04X\n", writtenBytesTotal, writtenBytesTotal);
-            //     printf("First drive address: %p\n", drivesList.drives[0]);
-            //     printf("Name in drives list: %S | %S | %lu\n", 
-            //         drivesList.drives[0]->fileSysName, 
-            //         drivesList.drives[0]->name,
-            //         drivesList.drives[0]->serial
-            //     );
-            //     writtenBytesTotal = 0;
-            // }
         }
         runtime--;
         Sleep(intervalms);

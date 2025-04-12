@@ -58,7 +58,6 @@ size_t ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
             continue;
         }
 
-
         do
         {
             if (_wcsicmp(findData.cFileName, L".") != 0 && _wcsicmp(findData.cFileName, L"..") != 0)
@@ -87,8 +86,10 @@ size_t ScanDirFiles(LPCWSTR path, LPCWSTR outputPath)
                 }  
             }
         } while (FindNextFileW(hFind, &findData));
+
         FindClose(hFind);
     }
+    
     timerEnd = clock();
     timerResult = ((double)(timerEnd - timerStart)) * 1000.0 / CLOCKS_PER_SEC;
     printf("Done! %.2fms\n", timerResult);
