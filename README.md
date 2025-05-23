@@ -2,6 +2,8 @@
 
 USB Sniffer is an application for monitoring connected USB devices and automatically copying files from USB flash drives. USB Sniffer is created exclusively for educational and research purposes and is not intended for harm or unauthorized use. The user bears full responsibility for the lawful application of the program in accordance with local laws and regulations.
 
+Works on Windows 7+ x64
+
 > **Important:** This application is developed solely for educational purposes. The author is not responsible for any unlawful actions that may be committed using this software.
 
 ## Flags
