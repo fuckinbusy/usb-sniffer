@@ -1,4 +1,4 @@
-#include "drive.h"
+#include "../include/drive.h"
 
 void FreeDrivesArray(pDrivesArray drives)
 {
@@ -16,9 +16,11 @@ BOOL UpdateDrive(pDrivesArray drives, DWORD serialNum, pVolumeInfo volumeInfo)
     pDriveInfo drive = NULL;
     for (size_t i = 0; i < drives->len; ++i)
     {
-        if (drives->drives[i]->serial == serialNum)
+        if (drives->drives[i]->serial == serialNum) {
             drive = drives->drives[i];
-            break;
+        }
+        
+        break;
     }
 
     if (drive == NULL) return FALSE;
@@ -74,7 +76,7 @@ BOOL FindDrive(pDrivesArray drives, DWORD serialNum)
 {
     if (drives == NULL || serialNum == 0) return FALSE;
 
-    for (char i = 0; i < drives->len; i++)
+    for (size_t i = 0; i < drives->len; i++)
     {
         pDriveInfo drive = drives->drives[i];
         if (drive != NULL && drive->serial == serialNum)
@@ -88,7 +90,7 @@ BOOL FindDrive(pDrivesArray drives, DWORD serialNum)
 
 BOOL isDriverConnected(pDrivesArray drives, DWORD serialNum)
 {
-    for (char i = 0; i < MAX_DRIVES; ++i)
+    for (size_t i = 0; i < MAX_DRIVES; ++i)
     {
         pDriveInfo drive = drives->drives[i];
         if (drive->serial == serialNum && drive->isConnected)
@@ -110,10 +112,9 @@ void BuildDriveRootPath(const char *drive, WCHAR *driveRootPath)
 void PrintVolumeInformation(pVolumeInfo pVolumeInformation)
 {
     printf("Name: %S\n", pVolumeInformation->name);
-    printf("Serial: %d\n", pVolumeInformation->serialNum);
-    printf("Max filename len: %d\n", pVolumeInformation->maxComponentLen);
+    printf("Serial: %lu\n", pVolumeInformation->serialNum);
+    printf("Max filename len: %lu\n", pVolumeInformation->maxComponentLen);
     printf("File system: %S\n", pVolumeInformation->fileSysName);
-    printf("Flags: %0*lx\n", sizeof(pVolumeInformation->fileSysFlags) * 2, pVolumeInformation->fileSysFlags);
 }
 
 DWORD GetDriveSerial(const WCHAR *driveRootPath)
@@ -147,7 +148,7 @@ void ScanDrives(int intervalms)
         if (drives != tmp)
         {
             drives = tmp;
-            for (char i = 0; i != MAX_DRIVES; i++)
+            for (size_t i = 0; i != MAX_DRIVES; i++)
             {
                 char drive = 'A' + i;
                 WCHAR driveRootPath[DRIVE_ROOT_PATH_SIZE];
@@ -189,7 +190,7 @@ void ScanDrives(int intervalms)
                 else
                 {
                     DWORD drSrl = GetDriveSerial(driveRootPath);
-                    for (char j = 0; j < drivesList.len; ++j)
+                    for (size_t j = 0; j < drivesList.len; ++j)
                     {
                         pDriveInfo dr = drivesList.drives[j];
                         if (dr->letter == drive && drSrl == 0)

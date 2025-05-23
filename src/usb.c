@@ -20,7 +20,8 @@ Disclaimer: This software should be used in accordance with applicable laws and 
 
 */
 
-#include "drive.h"
+#include "../include/drive.h"
+#include <string.h>
 
 #define FLAG_CMDHIDE "-hide"
 #define FLAG_CMDSHOW "-show"
@@ -36,12 +37,11 @@ int main(int argc, char *argv[])
 
     if (argc > 1)
     {
-
-        if (stricmp(argv[1], FLAG_CMDHIDE) == 0)
+        if (_stricmp(argv[1], FLAG_CMDHIDE) == 0)
         {
-            ShowWindow(console, SW_HIDE);
+            FreeConsole(); // this winapi function removes the console
         }
-        else if (stricmp(argv[1], FLAG_CMDSHOW) == 0)
+        else if (_stricmp(argv[1], FLAG_CMDSHOW) == 0)
         {
             ShowWindow(console, SW_SHOW);
         }

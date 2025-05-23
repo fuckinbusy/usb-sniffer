@@ -1,4 +1,4 @@
-#include "scanner.h"
+#include "../include/scanner.h"
 
 void stpush(Node **stack, LPCWSTR path, LPCWSTR outputPath)
 {
@@ -107,18 +107,24 @@ size_t CopyDirFiles(WCHAR *pathIn, WCHAR *pathOut, unsigned char *buffer)
     FILE *in = _wfopen(pathIn, L"rb");
     FILE *out = _wfopen(pathOut, L"wb");
     size_t bytesRead;
-    size_t bytesWritten;
+    size_t bytesWritten = 0;
 
     if (in == NULL || out == NULL)
     {
         perror("\nFile open error");
-        printf("%ld", GetLastError());
+        printf("%ld\n", GetLastError());
         return FALSE;
     }    
 
     while ((bytesRead = fread(buffer, sizeof(unsigned char), FILE_BUFFER_SIZE, in)) > 0)
     {
         bytesWritten = fwrite(buffer, sizeof(unsigned char), bytesRead, out);
+        if (bytesWritten != bytesRead) {
+            fclose(in);
+            fclose(out);
+            fprintf_s(stderr, "Error occured during copying files from drive: %ld\n", GetLastError());
+            return 0;
+        }
     }
 
     fclose(in);
