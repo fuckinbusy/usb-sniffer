@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS = -O3 -Wall -Wextra -I$(INCLUDES_DIR)
+CFLAGS = -O3 -Wall -Wextra -flto -s -I$(INCLUDES_DIR)
 
 INCLUDES_DIR = include
 BUILD_DIR = build

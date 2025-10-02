@@ -1,14 +1,5 @@
 #include "../include/drive.h"
 
-void FreeDrivesArray(pDrivesArray drives)
-{
-    if (drives == NULL) return;
-    for (size_t i = 0; i < drives->len; ++i)
-    {
-        if (drives->drives[i] != NULL) { free(drives->drives[i]); }
-    }
-}
-
 BOOL UpdateDrive(pDrivesArray drives, DWORD serialNum, pVolumeInfo volumeInfo)
 {
     if (drives == NULL || serialNum == 0 || volumeInfo == NULL) return FALSE;
@@ -16,11 +7,9 @@ BOOL UpdateDrive(pDrivesArray drives, DWORD serialNum, pVolumeInfo volumeInfo)
     pDriveInfo drive = NULL;
     for (size_t i = 0; i < drives->len; ++i)
     {
-        if (drives->drives[i]->serial == serialNum) {
-            drive = drives->drives[i];
+        if ((&drives->drives[i])->serial == serialNum) {
+            drive = &drives->drives[i];
         }
-        
-        break;
     }
 
     if (drive == NULL) return FALSE;
@@ -53,21 +42,13 @@ BOOL AppendDrive(pDrivesArray drives, pVolumeInfo volumeInfo)
         return FALSE;
     }
 
-    pDriveInfo drive = (pDriveInfo)malloc(sizeof(DriveInfo));
-    if (drive == NULL)
-    {
-        fprintf_s(stderr, "Memory allocation failed.\n");
-        return FALSE;
-    }
-
-    wcscpy_s(drive->name, MAX_PATH, volumeInfo->name);
-    wcscpy_s(drive->fileSysName, MAX_PATH + 1, volumeInfo->fileSysName);
+    pDriveInfo drive = &drives->drives[drives->len++];
     drive->serial = volumeInfo->serialNum;
     drive->isConnected = TRUE;
     drive->letter = volumeInfo->letter;
-
-    drives->drives[drives->len] = drive;
-    drives->len++;
+    wcscpy_s(drive->name, MAX_PATH, volumeInfo->name);
+    wcscpy_s(drive->fileSysName, MAX_PATH + 1, volumeInfo->fileSysName);
+    
     return TRUE;
 }
 
@@ -78,7 +59,7 @@ BOOL FindDrive(pDrivesArray drives, DWORD serialNum)
 
     for (size_t i = 0; i < drives->len; i++)
     {
-        pDriveInfo drive = drives->drives[i];
+        pDriveInfo drive = &(drives->drives[i]);
         if (drive != NULL && drive->serial == serialNum)
         {
             return TRUE;
@@ -92,7 +73,7 @@ BOOL isDriverConnected(pDrivesArray drives, DWORD serialNum)
 {
     for (size_t i = 0; i < MAX_DRIVES; ++i)
     {
-        pDriveInfo drive = drives->drives[i];
+        pDriveInfo drive = &(drives->drives[i]);
         if (drive->serial == serialNum && drive->isConnected)
         {
             return TRUE;
@@ -103,7 +84,7 @@ BOOL isDriverConnected(pDrivesArray drives, DWORD serialNum)
 
 void BuildDriveRootPath(const char *drive, WCHAR *driveRootPath)
 {
-    driveRootPath[0] = (WCHAR)*drive;
+    driveRootPath[0] = (WCHAR)(*drive);
     driveRootPath[1] = L':';
     driveRootPath[2] = L'\\';
     driveRootPath[3] = L'\0';
@@ -192,7 +173,7 @@ void ScanDrives(int intervalms)
                     DWORD drSrl = GetDriveSerial(driveRootPath);
                     for (size_t j = 0; j < drivesList.len; ++j)
                     {
-                        pDriveInfo dr = drivesList.drives[j];
+                        pDriveInfo dr = &(drivesList.drives[j]);
                         if (dr->letter == drive && drSrl == 0)
                         {
                             printf("Drive %c: disconnected\n\n", drive);
@@ -204,5 +185,4 @@ void ScanDrives(int intervalms)
         runtime--;
         Sleep(intervalms);
     }
-    FreeDrivesArray(&drivesList);
 }

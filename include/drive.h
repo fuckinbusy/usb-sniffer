@@ -3,7 +3,7 @@
 
 #define MAX_DRIVES 24
 
-typedef struct DRIVE_INFO 
+typedef struct _DRIVE_INFO 
 {
     WCHAR name[MAX_PATH];
     WCHAR fileSysName[MAX_PATH + 1];
@@ -13,13 +13,13 @@ typedef struct DRIVE_INFO
 
 } DriveInfo, *pDriveInfo;
 
-typedef struct DRIVES
+typedef struct _DRIVES
 {
-    pDriveInfo drives[MAX_DRIVES];
+    DriveInfo drives[MAX_DRIVES];
     size_t len;
 } DrivesArray, *pDrivesArray;
 
-typedef struct VOLUME_INFO
+typedef struct _VOLUME_INFO
 {
     WCHAR name[MAX_PATH];
     DWORD serialNum;
@@ -31,7 +31,6 @@ typedef struct VOLUME_INFO
 } VolumeInfo, *pVolumeInfo;
 
 BOOL FindDrive(pDrivesArray drives, DWORD serialNum);
-void FreeDrivesArray(pDrivesArray drives);
 void PrintVolumeInformation(pVolumeInfo pVolumeInformation);
 void ScanDrives(int intervalms);
 void BuildDriveRootPath(const char *drive, WCHAR *driveRootPath);
